@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中电科机器人产业链展示图</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background-color: #000;
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+            min-height: 100vh;
+        }
+
+        .producer-info {
+            width: 800px;
+            background-color: #000;
+            padding: 20px;
+            border-radius: 8px;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+            position: sticky;
+            top: 20px;
+            align-self: flex-start;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            scrollbar-width: thin;
+            scrollbar-color: #444 #111;
+        }
+        .producer-info::-webkit-scrollbar {
+            width: 8px;
+        }
+        .producer-info::-webkit-scrollbar-track {
+            background: #111;
+        }
+        .producer-info::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 4px;
+        }
+
+        /* 顶部标题样式，左右标识改为机器人 🤖 */
+        .info-title {
+            color: #fff;
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #2a2a2a;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            flex-shrink: 0;
+        }
+
+        #producerContent {
+            line-height: 1.8;
+            color: #e0e0e0;
+            min-height: 150px;
+            font-size: 16px;
+            white-space: pre-line;
+            background-color: #111;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            flex-shrink: 0;
+        }
+
+        .cec-style {
+            color: #09d9f0;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .park-style {
+            color: #b876fb;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        /* 金字塔四层结构样式 */
+        .pyramid {
+            background-color: #121212;
+            border: 1px solid #2a2a2a;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            flex-shrink: 0;
+        }
+        .pyramid-title {
+            color: #fff;
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #2a2a2a;
+            padding-bottom: 8px;
+        }
+        .layer {
+            display: flex;
+            margin-bottom: 12px;
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #2a2a2a;
+        }
+        .layer-color-bar {
+            width: 6px;
+            flex-shrink: 0;
+        }
+        .layer-content {
+            flex: 1;
+            padding: 12px 15px;
+        }
+        .layer-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .layer-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
+        }
+        /* 气泡标签样式（复用） */
+        .layer-tag {
+            background-color: #2a2a2a;
+            padding: 2px 8px;
+            border-radius: 30px;
+            font-size: 12px;
+            color: #aaa;
+            border: 1px solid #3a3a3a;
+            display: inline-block;
+            line-height: 1.4;
+        }
+        .company-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .company-col {
+            flex: 1;
+            min-width: 180px;
+        }
+        .company-col h4 {
+            font-size: 16px;
+            margin-bottom: 5px;
+            font-weight: normal;
+            border-bottom: 1px dotted #333;
+            padding-bottom: 3px;
+        }
+        .company-list {
+            list-style: none;
+            padding: 0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .company-list li {
+            margin-bottom: 3px;
+            color: #ccc;
+        }
+        .cec-text {
+            color: #09d9f0 !important;
+        }
+        .park-text {
+            color: #b876fb !important;
+        }
+
+        .img-container {
+            position: relative;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .part-img {
+            max-height: calc(100vh - 40px);
+            max-width: 100%;
+            height: auto;
+            width: auto;
+            border: 2px solid #000;
+            border-radius: 8px;
+            cursor: crosshair;
+        }
+        .img-error {
+            color: #ff4444;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        area {
+            cursor: pointer;
+        }
+
+        /* 水印遮挡层，请根据实际位置微调 */
+        #watermarkCover {
+    position: absolute;
+    width: 85px;
+    height: 20px;
+    background: rgb(55, 78, 99);
+    bottom: 15px;
+    right: 15px;
+    border-radius: 1px;
+    pointer-events: none;
+    z-index: 10;
+    display: block;
+}
+
+        @media (max-width: 900px) {
+            body {
+                flex-direction: column;
+            }
+            .producer-info {
+                width: 100%;
+                max-height: none;
+                overflow-y: visible;
+            }
+            .info-title {
+                font-size: 28px;
+            }
+            .cec-style, .park-style {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="producer-info">
+        <!-- 顶部标题改为 🤖 标识 -->
+        <div class="info-title">🤖 中电科机器人产业链展示图 🤖</div>
+        <div id="producerContent">点击机器人部位查看企业信息</div>
+
+        <!-- 金字塔四层结构，保留齿轮标识 -->
+        <div class="pyramid">
+            <div class="pyramid-title">⚙️ 产业链四层结构 ⚙️</div>
+            
+            <!-- 核心技术层 -->
+            <div class="layer">
+                <div class="layer-color-bar" style="background: #09d9f0;"></div>
+                <div class="layer-content">
+                    <div class="layer-header">
+                        <span class="layer-name">核心技术层</span>
+                        <span class="layer-tag">大脑·算法·算力</span>
+                    </div>
+                    <div class="company-row">
+                        <div class="company-col">
+                            <h4 style="color: #09d9f0;">中电科企业</h4>
+                            <ul class="company-list">
+                                <li>• 中国电科十四所（多模态感知/意念控制）</li>
+                                <li>• 中电太极（数字化协同/工业互联网）</li>
+                                <li>• 中电莱斯（集群管控/智能调度）</li>
+                            </ul>
+                        </div>
+                        <div class="company-col">
+                            <h4 style="color: #b876fb;">园区企业</h4>
+                            <ul class="company-list">
+                                <li>• 艾玛深瞳（多模态感知算法）</li>
+                                <li>• 北京睿行智控（运动控制/集群调度）</li>
+                                <li>• 北京玻色量子（量子算力）</li>
+                                <li>• 北京模树科技（数字孪生仿真）</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 关键部件层 -->
+            <div class="layer">
+                <div class="layer-color-bar" style="background: #b876fb;"></div>
+                <div class="layer-content">
+                    <div class="layer-header">
+                        <span class="layer-name">关键部件层</span>
+                        <span class="layer-tag">传感器·关节·电机·芯片</span>
+                    </div>
+                    <div class="company-row">
+                        <div class="company-col">
+                            <h4 style="color: #09d9f0;">中电科企业</h4>
+                            <ul class="company-list">
+                                <li>• 重庆声光电/光电科技（红外/声波传感器）</li>
+                                <li>• 上海金陵电机（微特电机/编码器）</li>
+                                <li>• 中电科机器人（电动关节/减速器）</li>
+                                <li>• 中电科思仪（测试仪器/标定）</li>
+                                <li>• 中电科半导体材料（化合物半导体）</li>
+                                <li>• 中电国基北方/南方（功率器件/射频芯片）</li>
+                                <li>• 中电科真空电子（高压驱动模块）</li>
+                                <li>• 中电网络通信（通信/物联网）</li>
+                                <li>• 中国网安（网络安全）</li>
+                                <li>• 中电科视声（音视频交互）</li>
+                            </ul>
+                        </div>
+                        <div class="company-col">
+                            <h4 style="color: #b876fb;">园区企业</h4>
+                            <ul class="company-list">
+                                <li>• 中电科计量检测（性能测试/认证）</li>
+                                <li>• 北京冀鑫宏伟机电（部件适配/优化）</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 整机集成层 -->
+            <div class="layer">
+                <div class="layer-color-bar" style="background: #f0a55a;"></div>
+                <div class="layer-content">
+                    <div class="layer-header">
+                        <span class="layer-name">整机集成层</span>
+                        <span class="layer-tag">机器人本体·系统集成</span>
+                    </div>
+                    <div class="company-row">
+                        <div class="company-col">
+                            <h4 style="color: #09d9f0;">中电科企业</h4>
+                            <ul class="company-list">
+                                <li>• 中电科机器人（全品类机器人/人形机器人）</li>
+                                <li>• 中电海康（小微特机器人/巡检机器人）</li>
+                            </ul>
+                        </div>
+                        <div class="company-col">
+                            <h4 style="color: #b876fb;">园区企业</h4>
+                            <ul class="company-list">
+                                <li>• 待入驻</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 场景应用层 -->
+            <div class="layer">
+                <div class="layer-color-bar" style="background: #5ac8f0;"></div>
+                <div class="layer-content">
+                    <div class="layer-header">
+                        <span class="layer-name">场景应用层</span>
+                        <span class="layer-tag">行业解决方案·运营服务</span>
+                    </div>
+                    <div class="company-row">
+                        <div class="company-col">
+                            <h4 style="color: #09d9f0;">中电科企业</h4>
+                            <ul class="company-list">
+                                <li>• 中电科机器人（应急/医疗/巡检/养老）</li>
+                                <li>• 中电海康（水利/环保/电力）</li>
+                                <li>• 中电网络通信（远程通信方案）</li>
+                                <li>• 中国网安（安全防护）</li>
+                                <li>• 中电科视声（音视频交互）</li>
+                            </ul>
+                        </div>
+                        <div class="company-col">
+                            <h4 style="color: #b876fb;">园区企业</h4>
+                            <ul class="company-list">
+                                <li>• 斯普勒医疗（医疗康复）</li>
+                                <li>• 北京国网新联（电力巡检）</li>
+                                <li>• 北京京阳环保（环保监测）</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="img-container">
+        <img 
+            src="robot.png" 
+            alt="人形机器人产业链图谱" 
+            class="part-img"
+            usemap="#partMap"
+            id="partImage"
+            onError="showImgError()"
+        >
+        <div class="img-error" id="imgErrorTip" style="display: none;">图片加载失败！请检查图片路径是否正确</div>
+        
+<map name="partMap">
+    <area shape="rect" coords="267,52,330,72" alt="外部传感器" onclick="showProducer('外部传感器')">
+    <area shape="rect" coords="281,27,331,43" alt="大脑" onclick="showProducer('大脑')">
+    <area shape="rect" coords="269,72,318,101" alt="内部传感器" onclick="showProducer('内部传感器')">
+    <area shape="rect" coords="216,363,263,412" alt="左旋转关节" onclick="showProducer('旋转关节')">
+    <area shape="rect" coords="335,366,385,401" alt="右旋转关节" onclick="showProducer('旋转关节')">
+    <area shape="rect" coords="248,148,336,282" alt="电池组" onclick="showProducer('电池组')">
+    <area shape="rect" coords="181,371,204,454" alt="左灵巧手" onclick="showProducer('左灵巧手')">
+    <area shape="rect" coords="395,397,416,457" alt="右灵巧手" onclick="showProducer('右灵巧手')">
+    <area shape="rect" coords="202,145,235,191" alt="左肩" onclick="showProducer('左肩')">
+    <area shape="rect" coords="354,138,404,198" alt="右肩" onclick="showProducer('右肩')">
+    <area shape="rect" coords="197,246,231,309" alt="左肘" onclick="showProducer('左肘')">
+    <area shape="rect" coords="363,244,406,309" alt="右肘" onclick="showProducer('右肘')">
+    <area shape="rect" coords="194,207,228,236" alt="左大臂" onclick="showProducer('左大臂')">
+    <area shape="rect" coords="364,212,399,241" alt="右大臂" onclick="showProducer('右大臂')">
+    <area shape="rect" coords="187,312,218,356" alt="左小臂" onclick="showProducer('左小臂')">
+    <area shape="rect" coords="371,317,406,366" alt="右小臂" onclick="showProducer('右小臂')">
+    <area shape="rect" coords="216,407,260,534" alt="左大腿" onclick="showProducer('左大腿')">
+    <area shape="rect" coords="334,416,388,534" alt="右大腿" onclick="showProducer('右大腿')">
+    <area shape="rect" coords="208,552,260,593" alt="左膝盖" onclick="showProducer('左膝盖')">
+    <area shape="rect" coords="337,534,389,593" alt="右膝盖" onclick="showProducer('右膝盖')">
+    <area shape="rect" coords="211,592,253,681" alt="左小腿" onclick="showProducer('左小腿')">
+    <area shape="rect" coords="340,597,386,681" alt="右小腿" onclick="showProducer('右小腿')">
+    <area shape="rect" coords="203,692,259,718" alt="左脚踝" onclick="showProducer('左脚踝')">
+    <area shape="rect" coords="336,682,420,718" alt="右脚踝" onclick="showProducer('右脚踝')">
+    <area shape="rect" coords="192,720,259,752" alt="左脚" onclick="showProducer('左脚')">
+    <area shape="rect" coords="339,719,401,753" alt="右脚" onclick="showProducer('右脚')">
+</map>
+        <!-- 水印遮挡层 -->
+        <div id="watermarkCover"></div>
+    </div>
+
+    <script>
+        const producerMap = {
+            "外部传感器": `<span style="font-size: 18px; font-weight: bold; color: #fff;">外部传感器</span> <span class="layer-tag">负责机器人对外部环境的感知</span>：
+• <span class="cec-style">中电科技集团重庆声光电有限公司、中电科光电科技有限公司</span>：提供高精度声表面波传感器和红外探测器，用于机器人距离测量、夜间视觉和温度感知。
+• <span class="cec-style">中电科思仪科技股份有限公司</span>：提供阻抗分析仪、动态信号分析仪等测试设备，用于外部传感器的性能校准与标定，确保感知精度。
+• <span class="park-style">艾玛深瞳科技</span>：提供多模态感知算法，与十四所视觉感知技术深度适配，提升机器人在复杂光照、遮挡条件下的目标识别准确率。
+• <span class="park-style">中电科计量检测认证</span>：提供传感器精度、响应速度等性能测试服务，具备CNAS认证资质，帮助机器人企业完成传感器选型和定型验证。`,
+
+            "大脑": `<span style="font-size: 18px; font-weight: bold; color: #fff;">大脑</span> <span class="layer-tag">负责决策、控制与智能处理</span>：
+• <span class="cec-style">中电太极（集团）有限公司</span>：将其数字化协同技术应用于机器人规模化作业的智能管控，其太极TECO工业互联网平台可支撑机器人生产线的数字化管控；承担的无人系统协同控制项目可用于多机器人任务规划与资源调度。
+• <span class="cec-style">中电莱斯信息系统有限公司</span>：提供集群管控与智能调度技术，其集群协同控制系统可实现数十台机器人的任务分配、路径规划与协同作业，已在物流园区试点应用。
+• <span class="cec-style">中国电科第十四研究所</span>：提供多模态感知与意念控制技术，其信号处理、多传感器融合能力可迁移至机器人的环境感知与智能决策系统，提升“大脑”的感知决策能力。
+• <span class="park-style">北京睿行智控</span>：提供运动控制与集群调度算法，协同中电太极、中电莱斯的系统，优化规模化作业调度效率，其调度算法已实现50台AGV的同时调度。
+• <span class="park-style">北京玻色量子</span>：提供量子算力探索，其相干光量子计算机可为机器人复杂路径规划等任务提供算力支撑，突破传统算力瓶颈。
+• <span class="park-style">北京模树科技</span>：提供数字孪生仿真平台，与中电科机器人整机研发协同，通过动力学建模与环境交互模拟，缩短研发周期、降低原型验证成本。`,
+
+            "内部传感器": `<span style="font-size: 18px; font-weight: bold; color: #fff;">内部传感器</span> <span class="layer-tag">负责机器人自身状态感知，如力、姿态、角度等</span>：
+• <span class="cec-style">中电科思仪科技股份有限公司</span>：提供高精度阻抗分析仪、动态信号分析仪，用于内部传感器（如力觉、惯性传感器）的性能校准与测试。
+• <span class="cec-style">中电科半导体材料有限公司</span>：提供碳化硅、氮化镓等化合物半导体材料，用于制造高功率密度机器人驱动芯片，间接保障内部传感器的信号处理。
+• <span class="park-style">中电科计量检测认证</span>：提供力觉传感器标定、姿态传感器精度验证等测试服务，确保内部传感器数据准确可靠。`,
+
+            "旋转关节": `<span style="font-size: 18px; font-weight: bold; color: #fff;">旋转关节</span> <span class="layer-tag">包括肩、肘、膝、踝关节的电机、减速器、编码器等核心部件</span>：
+• <span class="cec-style">上海金陵电机股份有限公司</span>：提供机器人专用驱动电机、编码器，其谐波减速一体机伺服电机将电机、减速器、编码器高度集成，可直接用于关节旋转驱动。
+• <span class="cec-style">中电科机器人有限公司</span>：提供电动关节、轻量型减速器等动力部件，产品涵盖一体化关节组件、谐波减速器，为关节提供精准动力输出。
+• <span class="park-style">北京冀鑫宏伟机电科技有限公司</span>：提供机电部件适配与优化服务，配合中电科机器人的电动关节技术，满足外骨骼、小型巡检等场景对关节轻量化的需求。`,
+
+            "左肩": `<span style="font-size: 18px; font-weight: bold; color: #fff;">左肩</span> <span class="layer-tag">旋转关节</span>：
+• <span class="cec-style">上海金陵电机股份有限公司</span>：提供肩部专用微特电机及编码器，其谐波减速一体机伺服电机可直接集成于肩部关节，实现紧凑高扭矩驱动。
+• <span class="cec-style">中电科机器人有限公司</span>：提供肩部用电动关节和减速器，确保肩部运动的精准性与可靠性。
+• <span class="park-style">北京冀鑫宏伟机电科技有限公司</span>：提供肩部关节模块化集成与结构轻量化改造服务。`,
+
+            "右肩": `<span style="font-size: 18px; font-weight: bold; color: #fff;">右肩</span> <span class="layer-tag">旋转关节</span>：
+• <span class="cec-style">上海金陵电机股份有限公司</span>：提供肩部专用微特电机及编码器，其谐波减速一体机伺服电机可直接集成于肩部关节，实现紧凑高扭矩驱动。
+• <span class="cec-style">中电科机器人有限公司</span>：提供肩部用电动关节和减速器，确保肩部运动的精准性与可靠性。
+• <span class="park-style">北京冀鑫宏伟机电科技有限公司</span>：提供肩部关节模块化集成与结构轻量化改造服务。`,
+
+            "左肘": `<span style="font-size: 18px; font-weight: bold; color: #fff;">左肘</span> <span class="layer-tag">线性/旋转关节</span>：
+• <span class="cec-style">上海金陵电机股份有限公司</span>：提供肘部专用微特电机，其谐波减速一体机伺服电机可驱动肘部弯曲/伸展。
+• <span class="cec-style">中电科机器人有限公司</span>：提供肘部线性驱动与减速器，确保肘部动作的平稳与精度。
+• <span class="park-style">北京冀鑫宏伟机电科技有限公司</span>：提供肘部轻量化改造与紧凑结构设计服务。`,
+
+            "右肘": `<span style="font-size: 18px; font-weight: bold; color: #fff;">右肘</span> <span class="layer-tag">线性/旋转关节</span>：
+• <span class="cec-style">上海金陵电机股份有限公司</span>：提供肘部专用微特电机，其谐波减速一体机伺服电机可驱动肘部弯曲/伸展。
+• <span class="cec-style">中电科机器人有限公司</span>：提供肘部线性驱动与减速器，确保肘部动作的平稳与精度。
+• <span class="park-style">北京冀鑫宏伟机电科技有限公司</span>：提供肘部轻量化改造与紧凑结构设计服务。`,
+
+            "左膝盖": `<span style="font-size: 18px; font-weight: bold; color: #fff;">左膝盖</span> <span class="layer-tag">旋转关节</span>：
+• <span class="cec-style">上海金陵电机股份有限公司</span>：提供膝部专用高扭矩伺服电机及编码器，集成谐波减速器，驱动膝部屈伸。
+• <span class="cec-style">中电科机器人有限公司</span>：提供膝部旋转关节与缓冲机构，保障下肢运动稳定。
+• <span class="park-style">北京冀鑫宏伟机电科技有限公司</span>：提供膝部关节模块化集成与结构加固服务。`,
+
+            "右膝盖": `<span style="font-size: 18px; font-weight: bold; color: #fff;">右膝盖</span> <span class="layer-tag">旋转关节</span>：
+• <span class="cec-style">上海金陵电机股份有限公司</span>：提供膝部专用高扭矩伺服电机及编码器，集成谐波减速器，驱动膝部屈伸。
+• <span class="cec-style">中电科机器人有限公司</span>：提供膝部旋转关节与缓冲机构，保障下肢运动稳定。
+• <span class="park-style">北京冀鑫宏伟机电科技有限公司</span>：提供膝部关节模块化集成与结构加固服务。`,
+
+            "左脚踝": `<span style="font-size: 18px; font-weight: bold; color: #fff;">左脚踝</span> <span class="layer-tag">旋转关节</span>：
+• <span class="cec-style">上海金陵电机股份有限公司</span>：提供踝部专用微特电机，其谐波减速一体机伺服电机可驱动踝部多自由度运动。
+• <span class="cec-style">中电科机器人有限公司</span>：提供踝部多自由度旋转关节，确保脚部灵活适应地形。
+• <span class="park-style">北京冀鑫宏伟机电科技有限公司</span>：提供踝部关节轻量化与防护方案。`,
+
+            "右脚踝": `<span style="font-size: 18px; font-weight: bold; color: #fff;">右脚踝</span> <span class="layer-tag">旋转关节</span>：
+• <span class="cec-style">上海金陵电机股份有限公司</span>：提供踝部专用微特电机，其谐波减速一体机伺服电机可驱动踝部多自由度运动。
+• <span class="cec-style">中电科机器人有限公司</span>：提供踝部多自由度旋转关节，确保脚部灵活适应地形。
+• <span class="park-style">北京冀鑫宏伟机电科技有限公司</span>：提供踝部关节轻量化与防护方案。`,
+
+            "左大臂": `<span style="font-size: 18px; font-weight: bold; color: #fff;">左大臂</span> <span class="layer-tag">结构件与集成</span>：
+• <span class="cec-style">中电科机器人有限公司</span>：提供大臂主体结构与承重骨架，集成内部线缆与关节接口，确保整机结构强度。
+• <span class="cec-style">中电海康集团有限公司</span>：提供小微特机器人整机设计经验，可迁移至大臂结构优化。
+• <span class="park-style">北京模树科技</span>：提供数字孪生仿真，对大臂进行结构仿真与疲劳分析，优化设计。
+• <span class="park-style">北京冀鑫宏伟机电科技有限公司</span>：参与大臂内部机电部件适配与布线优化。`,
+
+            "右大臂": `<span style="font-size: 18px; font-weight: bold; color: #fff;">右大臂</span> <span class="layer-tag">结构件与集成</span>：
+• <span class="cec-style">中电科机器人有限公司</span>：提供大臂主体结构与承重骨架，集成内部线缆与关节接口，确保整机结构强度。
+• <span class="cec-style">中电海康集团有限公司</span>：提供小微特机器人整机设计经验，可迁移至大臂结构优化。
+• <span class="park-style">北京模树科技</span>：提供数字孪生仿真，对大臂进行结构仿真与疲劳分析，优化设计。
+• <span class="park-style">北京冀鑫宏伟机电科技有限公司</span>：参与大臂内部机电部件适配与布线优化。`,
+
+            "左小臂": `<span style="font-size: 18px; font-weight: bold; color: #fff;">左小臂</span> <span class="layer-tag">结构件与传动</span>：
+• <span class="cec-style">中电科机器人有限公司</span>：提供小臂结构件与传动总成，集成腕部关节接口。
+• <span class="cec-style">中电海康集团有限公司</span>：提供小微特机器人轻量化设计经验，可应用于小臂。
+• <span class="park-style">北京模树科技</span>：提供小臂运动轨迹仿真优化，确保动作流畅。
+• <span class="park-style">北京冀鑫宏伟机电科技有限公司</span>：参与小臂内部部件适配与装配。`,
+
+            "右小臂": `<span style="font-size: 18px; font-weight: bold; color: #fff;">右小臂</span> <span class="layer-tag">结构件与传动</span>：
+• <span class="cec-style">中电科机器人有限公司</span>：提供小臂结构件与传动总成，集成腕部关节接口。
+• <span class="cec-style">中电海康集团有限公司</span>：提供小微特机器人轻量化设计经验，可应用于小臂。
+• <span class="park-style">北京模树科技</span>：提供小臂运动轨迹仿真优化，确保动作流畅。
+• <span class="park-style">北京冀鑫宏伟机电科技有限公司</span>：参与小臂内部部件适配与装配。`,
+
+            "左大腿": `<span style="font-size: 18px; font-weight: bold; color: #fff;">左大腿</span> <span class="layer-tag">下肢结构件与关节</span>：
+• <span class="cec-style">中电科机器人有限公司</span>：提供大腿主体结构与髋/膝关节接口，承载整机上身重量。
+• <span class="cec-style">中电海康集团有限公司</span>：提供小微特机器人下肢设计经验，可用于大腿结构优化。
+• <span class="park-style">北京模树科技</span>：提供大腿结构仿真与疲劳分析。
+• <span class="park-style">北京冀鑫宏伟机电科技有限公司</span>：参与大腿内部走线与部件固定。`,
+
+            "右大腿": `<span style="font-size: 18px; font-weight: bold; color: #fff;">右大腿</span> <span class="layer-tag">下肢结构件与关节</span>：
+• <span class="cec-style">中电科机器人有限公司</span>：提供大腿主体结构与髋/膝关节接口，承载整机上身重量。
+• <span class="cec-style">中电海康集团有限公司</span>：提供小微特机器人下肢设计经验，可用于大腿结构优化。
+• <span class="park-style">北京模树科技</span>：提供大腿结构仿真与疲劳分析。
+• <span class="park-style">北京冀鑫宏伟机电科技有限公司</span>：参与大腿内部走线与部件固定。`,
+
+            "左小腿": `<span style="font-size: 18px; font-weight: bold; color: #fff;">左小腿</span> <span class="layer-tag">下肢结构件与传动</span>：
+• <span class="cec-style">中电科机器人有限公司</span>：提供小腿结构与踝关节接口，集成下肢驱动组件。
+• <span class="cec-style">中电海康集团有限公司</span>：提供小微特机器人下肢轻量化经验。
+• <span class="park-style">北京模树科技</span>：提供小腿运动轨迹仿真优化。
+• <span class="park-style">北京冀鑫宏伟机电科技有限公司</span>：参与小腿内部部件适配。`,
+
+            "右小腿": `<span style="font-size: 18px; font-weight: bold; color: #fff;">右小腿</span> <span class="layer-tag">下肢结构件与传动</span>：
+• <span class="cec-style">中电科机器人有限公司</span>：提供小腿结构与踝关节接口，集成下肢驱动组件。
+• <span class="cec-style">中电海康集团有限公司</span>：提供小微特机器人下肢轻量化经验。
+• <span class="park-style">北京模树科技</span>：提供小腿运动轨迹仿真优化。
+• <span class="park-style">北京冀鑫宏伟机电科技有限公司</span>：参与小腿内部部件适配。`,
+
+            "左脚": `<span style="font-size: 18px; font-weight: bold; color: #fff;">左脚</span> <span class="layer-tag">足部执行与感知</span>：
+• <span class="cec-style">中国电科第十四研究所</span>：提供足部触觉感知与平衡控制技术，通过传感器融合帮助机器人稳定站立。`,
+
+            "右脚": `<span style="font-size: 18px; font-weight: bold; color: #fff;">右脚</span> <span class="layer-tag">足部执行与感知</span>：
+• <span class="cec-style">中国电科第十四研究所</span>：提供足部触觉感知与平衡控制技术，通过传感器融合帮助机器人稳定站立。`,
+
+            "左灵巧手": `<span style="font-size: 18px; font-weight: bold; color: #fff;">左灵巧手</span> <span class="layer-tag">精细操作末端</span>：
+• <span class="cec-style">中国电科第十四研究所</span>：提供“灵犀手”技术，通过肌电信号实现意念控制，融合多指灵巧操作与触觉反馈，适用于康复、抓取等场景。`,
+
+            "右灵巧手": `<span style="font-size: 18px; font-weight: bold; color: #fff;">右灵巧手</span> <span class="layer-tag">精细操作末端</span>：
+• <span class="cec-style">中国电科第十四研究所</span>：提供“灵犀手”技术，通过肌电信号实现意念控制，融合多指灵巧操作与触觉反馈，适用于康复、抓取等场景。`,
+
+            "电池组": `<span style="font-size: 18px; font-weight: bold; color: #fff;">电池组</span> <span class="layer-tag">机器人的能源系统</span>：
+• <span class="cec-style">中电科蓝天科技股份有限公司（电科蓝天）</span>：提供高能量密度、宽温域锂离子电池组，产品比能量可达300Wh/kg，温差适应范围±100℃，已广泛应用于AGV工业机器人及国防军工领域，可为人形机器人提供轻量化、长续航的电源解决方案。
+• <span class="cec-style">电科博微所属华耀电子</span>：提供“耀擎”系列无人智能装备供电系统，其中“耀擎I”系列专为人形机器人设计，采用模块化平台，兼容不同电压等级动力电池；“耀擎Ⅲ”系列内置超级电容，满足重载机器人高峰值功率输出需求，有效延长续航时间。`
+        };
+
+        function showProducer(partName) {
+            const el = document.getElementById("producerContent");
+            el.innerHTML = producerMap[partName] || "暂无该部件信息";
+        }
+
+        function showImgError() {
+            document.getElementById("imgErrorTip").style.display = "block";
+        }
+    </script>
+</body>
+</html>
