@@ -199,21 +199,6 @@
         area {
             cursor: pointer;
         }
-
-        /* 水印遮挡层，请根据实际位置微调 */
-        #watermarkCover {
-    position: absolute;
-    width: 85px;
-    height: 20px;
-    background: rgb(55, 78, 99);
-    bottom: 15px;
-    right: 15px;
-    border-radius: 1px;
-    pointer-events: none;
-    z-index: 10;
-    display: block;
-}
-
         @media (max-width: 900px) {
             body {
                 flex-direction: column;
@@ -548,6 +533,48 @@
         function showImgError() {
             document.getElementById("imgErrorTip").style.display = "block";
         }
+        // ===== 自适应 map 坐标（基于基准显示尺寸）=====
+(function() {
+    const img = document.getElementById('partImage');
+    const map = document.querySelector('map[name="partMap"]');
+    if (!img || !map) return;
+
+    // ===== 请修改为你在第1步获取到的基准宽高 =====
+    const baseWidth = 576;   // ← 替换为你记下的宽度
+    const baseHeight = 768;  // ← 替换为你记下的高度
+    // =========================================
+
+    const areas = Array.from(map.getElementsByTagName('area'));
+
+    // 保存原始坐标（基于基准尺寸的坐标）
+    areas.forEach(area => {
+        if (!area.dataset.originalCoords) {
+            area.dataset.originalCoords = area.coords;
+        }
+    });
+
+    function updateCoords() {
+        if (!img.complete || img.naturalWidth === 0) return;
+        const currentWidth = img.clientWidth;
+        const currentHeight = img.clientHeight;
+        const scaleX = currentWidth / baseWidth;
+        const scaleY = currentHeight / baseHeight;
+
+        areas.forEach(area => {
+            const original = area.dataset.originalCoords;
+            if (!original) return;
+            const nums = original.split(',').map(Number);
+            const scaled = nums.map((val, idx) => 
+                Math.round(val * (idx % 2 === 0 ? scaleX : scaleY))
+            );
+            area.coords = scaled.join(',');
+        });
+    }
+
+    img.addEventListener('load', updateCoords);
+    window.addEventListener('resize', updateCoords);
+    if (img.complete) updateCoords();
+})();
     </script>
 </body>
 </html>
